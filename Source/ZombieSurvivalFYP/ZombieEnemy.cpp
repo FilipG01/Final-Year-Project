@@ -2,6 +2,43 @@
 
 
 #include "ZombieEnemy.h"
+#include "AIController.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
+
+void AZombieEnemy::FindPlayer()
+{
+	TargetPlayer = UGameplayStatics::GetPlayerPawn(
+		GetWorld(), 0
+	);
+}
+
+void AZombieEnemy::ChasePlayer()
+{
+	if (!IsValid(TargetPlayer))
+	{
+		FindPlayer();
+
+		if (!IsValid(TargetPlayer))
+		{
+			return;
+		}
+	}
+
+	AAIController* AIController =
+		Cast<AAIController>(GetController());
+
+	if (AIController == nullptr)
+	{
+		return;
+	}
+
+	AIController->MoveToActor(
+		TargetPlayer,
+		AcceptanceRadius
+	);
+}
 
 // Sets default values
 AZombieEnemy::AZombieEnemy()
@@ -16,6 +53,19 @@ void AZombieEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+
+	FindPlayer();
+
+	ChasePlayer();
+
+	GetWorldTimerManager().SetTimer(
+		BehaviourTimerHandle,
+		this,
+		&AZombieEnemy::ChasePlayer,
+		BehaviourUpdateInterval,
+		true
+	);
 }
 
 // Called every frame

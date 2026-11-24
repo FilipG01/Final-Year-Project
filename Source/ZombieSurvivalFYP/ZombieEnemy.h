@@ -18,7 +18,25 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Movement")
+	float MovementSpeed = 250.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Movement")
+	float AcceptanceRadius = 100.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Behaviour")
+	float BehaviourUpdateInterval = 0.25f;
+	
+	void FindPlayer();
+	
+	void ChasePlayer();
+	
+	UPROPERTY()
+	APawn* TargetPlayer = nullptr;
+	
+	FTimerHandle BehaviourTimerHandle;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
